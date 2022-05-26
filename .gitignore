@@ -1,6 +1,9 @@
 # Prerequisites
 *.d
-
+build
+.DS_store
+Scripts_python
+lib
 # Object files
 *.o
 *.ko
