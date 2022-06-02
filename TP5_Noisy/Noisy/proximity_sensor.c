@@ -1,13 +1,6 @@
-/*
- * proximity_sensor.c
- *
- *  Created on: 21 May 2022
- *      Author: marc-
- */
-
 /* Header:
  * Author/Editor: Marc El Khoury and Joey Kodeih
- * This file is the one where we process the proximity sensors data and command the robot.
+ * This file is the one where we process the proximity sensors data and command the robot with audio and proximity data.
  *
  *
  *
@@ -37,37 +30,39 @@ static int distance_IR8 = 0;
 static int distance_IR4 = 0;
 static int distance_IR5 = 0;
 
-//Function to turn the robot at the angle that we give to the function
+//Function to turn the robot at the angle that we give to the function : An assistant helped us do this function.
 void turn_robot(double angle){
-	unsigned int step_goal;
-	step_goal = abs(ANGLEtoSTEPS*angle/45);
+	int step_goal_toreach;
+	step_goal_toreach = abs(ANGLEtoSTEPS*angle/45);
 	if(angle > 0){
-		right_motor_set_pos(0);
-		left_motor_set_pos(step_goal);
+		right_motor_set_pos(SPEED_0);
+		left_motor_set_pos(step_goal_toreach);
+
 		right_motor_set_speed(MOTOR_R);
 		left_motor_set_speed(-MOTOR_L);
 
 		//Wait to reach the final position
-		while((right_motor_get_pos()<=step_goal && left_motor_get_pos() >=0)){
+		while((right_motor_get_pos()<=step_goal_toreach && left_motor_get_pos() >=0)){
 			__asm__ volatile("nop");
 		}
 		//Reached position stop the motor so that we can go forward in the other thread
-		right_motor_set_speed(0);
-		left_motor_set_speed(0);
+		right_motor_set_speed(SPEED_0);
+		left_motor_set_speed(SPEED_0);
 	}
 	if(angle < 0){
-		right_motor_set_pos(step_goal);
-		left_motor_set_pos(0);
+		right_motor_set_pos(step_goal_toreach);
+		left_motor_set_pos(SPEED_0);
+
 		right_motor_set_speed(-MOTOR_R);
 		left_motor_set_speed(MOTOR_L);
 
 		//Wait to reach the final position
-		while((left_motor_get_pos()<=step_goal) && (right_motor_get_pos() >=0)){
+		while((left_motor_get_pos()<=step_goal_toreach) && (right_motor_get_pos() >=0)){
 			__asm__ volatile("nop");
 		}
 		//Reached position stop the motor so that we can go forward in the other thread
-		right_motor_set_speed(0);
-		left_motor_set_speed(0);
+		right_motor_set_speed(SPEED_0);
+		left_motor_set_speed(SPEED_0);
 	}
 
 }
@@ -106,39 +101,38 @@ static THD_FUNCTION(Motor, arg) {
     while(1){
         chBSemWait(&prox_ready_sem);
 
-        //Check if the robot reached the goal distance with the object
+        //If we detect the frequency of forward command:
         if (get_commandfront()){
-        	//Check the color of the object then turns in the direction of the color detected
-        	//We also do a reset after the detection to put our conditions to default after each execution of the thread
-        	if (get_calibrated_prox(IR_FRONT_RIGHT)>200 || get_calibrated_prox(IR_FRONT_LEFT) > 200){
-        		turn_robot(50);
+        	//We check if we have in object nearby in the front because we are going forward
+        	if (get_calibrated_prox(IR_FRONT_RIGHT)>DISTANCE_PROX || get_calibrated_prox(IR_FRONT_LEFT) > DISTANCE_PROX){
+        		turn_robot(ANGLE_90);
         	}
         	//If nothing is detected we continue to move forward
     		right_motor_set_speed(MOTOR_R);
     		left_motor_set_speed(MOTOR_L);
-    		//reset_function();
-    		}else if (get_commandback()){
-        	//Check the color of the object then turns in the direction of the color detected
-        	//We also do a reset after the detection to put our conditions to default after each execution of the thread
-        	if (get_calibrated_prox(IR_BACK_RIGHT)>200 || get_calibrated_prox(IR_BACK_LEFT) > 200){
-        		turn_robot(-50);
+
+    	//If we detect the frequency of backward command:
+    	}else if (get_commandback()){
+    		//We check if we have in object nearby in the front because we are going forward:
+        	if (get_calibrated_prox(IR_BACK_RIGHT)> DISTANCE_PROX || get_calibrated_prox(IR_BACK_LEFT) > DISTANCE_PROX){
+        		turn_robot(-ANGLE_90);
         	}
         	//If nothing is detected we continue to move backward
     		right_motor_set_speed(-MOTOR_R);
     		left_motor_set_speed(-MOTOR_L);
-    		//reset_function();
 
+    	//If we detect the frequency to turn left
         }else if (get_commandleft()){
             right_motor_set_speed(-MOTOR_R);
             left_motor_set_speed(MOTOR_L);
-            //reset_function();
+        //If we detect the frequency to turn right
         }else if (get_commandright()){
         	right_motor_set_speed(MOTOR_R);
         	left_motor_set_speed(-MOTOR_L);
-        	//reset_function();
+        //If nothing is detected the motor speed is set to 0
         }else{
-        	right_motor_set_speed(0);
-        	left_motor_set_speed(0);
+        	right_motor_set_speed(SPEED_0);
+        	left_motor_set_speed(SPEED_0);
          }
 
     }

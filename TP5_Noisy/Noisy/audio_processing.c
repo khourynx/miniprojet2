@@ -1,3 +1,12 @@
+/* Header:
+ * Author: TP5 Noisy file taken from Moodle of the course
+ * Editor: Marc El Khoury and Joey Kodeih
+ * This file is the one where we process the proximity sensors data and command the robot with audio and proximity data.
+ *
+ *
+ *
+*/
+
 #include "ch.h"
 #include "hal.h"
 #include <main.h>
@@ -25,6 +34,7 @@ static float micRight_output[FFT_SIZE];
 static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 
+//variables that we return to identify which command we need to perform
 static uint8_t commandfront = 0;
 static uint8_t commandright = 0;
 static uint8_t commandleft =  0;
@@ -214,22 +224,27 @@ float* get_audio_buffer_ptr(BUFFER_NAME_t name){
 	}
 }
 
+//function that returns a bool true if the robot needs to go forward
 uint8_t get_commandfront (void){
 	return commandfront;
 }
 
+//function that returns a bool true if the robot needs to go right
 uint8_t get_commandright (void){
 	return commandright;
 }
 
+//function that returns a bool true if the robot needs to go left
 uint8_t get_commandleft (void){
 	return commandleft;
 }
 
+//function that returns a bool true if the robot needs to go backward
 uint8_t get_commandback (void){
 	return commandback;
 }
 
+//function that resets all the bool values to false
 void reset_function(void){
 	commandfront = 0;
 	commandright = 0;

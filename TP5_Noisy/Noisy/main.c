@@ -19,10 +19,6 @@
 #include <communications.h>
 #include <arm_math.h>
 
-
-#define SEND_FROM_MIC
-#define DOUBLE_BUFFERING
-
 void SendUint8ToComputer(uint8_t* data, uint16_t size)
 {
 	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)"START", 5);
@@ -64,8 +60,6 @@ int main(void)
     //starts the USB communication
     usb_start();
 
-    //starts the TOF thread
-    //VL53L0X_start();
 
     //inits the motors
     motors_init();
@@ -80,6 +74,8 @@ int main(void)
     //starts the microphones processing thread.
     //it calls the callback given in parameter when samples are ready
     mic_start(&processAudioData);
+
+    //starts the motor related threads: Proximity sensor thread then motor threads
     motor_start();
 
     /* Infinite loop. */

@@ -16,6 +16,9 @@ extern "C" {
 #define PI                  	3.1415926536f
 #define WHEEL_DISTANCE      	5.35f    //cm
 #define EPUCK_DIAMETER			54
+#define DISTANCE_PROX			200
+#define SPEED_0					0
+#define ANGLE_90				50
 
 void SendUint8ToComputer(uint8_t* data, uint16_t size);
 

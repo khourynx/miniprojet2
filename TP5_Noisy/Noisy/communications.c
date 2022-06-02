@@ -1,3 +1,12 @@
+/* Header:
+ * Author: TP5 Noisy file taken from Moodle of the course
+ * Editor: Marc El Khoury and Joey Kodeih
+ * This file is the one where we process the proximity sensors data and command the robot with audio and proximity data.
+ *
+ *
+ *
+*/
+
 #include "ch.h"
 #include "hal.h"
 #include <main.h>
